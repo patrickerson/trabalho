@@ -1,3 +1,5 @@
+:- multifile contribuinte/11.
+:- multifile depente/4.
 :- dynamic contribuinte/11.
 :- dynamic dependente/4.
 :- dynamic cont/1.
@@ -38,7 +40,7 @@ counter_dependentes(CPF),
 cont(Y),
 Desconto is Y *1200,
 renda_total(R),
-RTA is R + Renda_anual - Desconto,
+RTA is R + Renda_anual,
 assert(renda_total(RTA)),
 retractall(renda_total(R)),
 format('~w|~w|~w|~w|~w|~w|~w|~w|~w|~w|~w|~w\n', [CPF, Nome, Genero, Renda_anual, Logradouro, Numero, Complemento, Cidade, Estado, CEP, Celular, Desconto]), 
@@ -55,3 +57,16 @@ relatorio_contribuinte():-
 
 
 
+salvar_dados_em_arquivo():-
+    tell('dados_contribuintes.pl'), listing(contribuinte//1), told,
+    tell('dados_dependentes.pl'), listing(dependente/4),told,!.
+
+carregar_dados():-
+    consult('dados_contribuintes.pl'),
+    consult('dados_dependentes.pl').
+
+limpar_dados():-
+    excluir_contribuinte(_).
+
+encerrar():-
+    halt(0).
