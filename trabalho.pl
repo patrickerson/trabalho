@@ -34,25 +34,24 @@ counter_dependentes(CPF):-
     dependente(CPF,_,_,_),
     Y is X + 1,
     assert(cont(Y)),
-    retract(cont(X));cont(0).
+    retract(cont(X));cont(0),!.
 
 relatorio_contribuinte:-
     write('CPF   |   NOME  |   G   |   REN   |   LOG   |  NUM  |   COMP   |   CID  |   EST   |   CEP   |   CEL | DESCONTO\n'), 
     write('--------------------------------------------------------------------------------------------------------------\n'),
     fail.
 relatorio_contribuinte:-
-contribuinte(CPF, Nome, Genero, Renda_anual, Logradouro, Numero, Complemento, Cidade, Estado, CEP, Celular),
-counter_dependentes(CPF),
-cont(Y),
-Desconto is Y *1200,
-renda_total(R),
-RTA is R + Renda_anual,
-assert(renda_total(RTA)),
-retractall(renda_total(R)),
-format('~w|~w|~w|~w|~w|~w|~w|~w|~w|~w|~w|~w\n', [CPF, Nome, Genero, Renda_anual, Logradouro, Numero, Complemento, Cidade, Estado, CEP, Celular, Desconto]), 
-write('--------------------------------------------------------------------------------------------------------------\n'),
-retract(cont(Y)), assert(cont(0)),
-fail.
+    contribuinte(CPF, Nome, Genero, Renda_anual, Logradouro, Numero, Complemento, Cidade, Estado, CEP, Celular),
+    counter_dependentes(CPF),
+    cont(Y),
+    Desconto is Y *1200,
+    renda_total(R),
+    RTA is R + Renda_anual,
+    assert(renda_total(RTA)),
+    format('~w|~w|~w|~w|~w|~w|~w|~w|~w|~w|~w|~w\n', [CPF, Nome, Genero, Renda_anual, Logradouro, Numero, Complemento, Cidade, Estado, CEP, Celular, Desconto]), 
+    write('--------------------------------------------------------------------------------------------------------------\n'),
+    retract(cont(Y)), retractall(renda_total(R)), assert(cont(0)),
+    fail.
 
 relatorio_contribuinte:-
     renda_total(X),
@@ -63,7 +62,7 @@ relatorio_contribuinte:-
 
 
 salvar_dados_em_arquivo:-
-    tell('dados_contribuintes.pl'), listing(contribuinte//1), told,
+    tell('dados_contribuintes.pl'), listing(contribuinte/11), told,
     tell('dados_dependentes.pl'), listing(dependente/4),told,!.
 
 
@@ -81,27 +80,33 @@ encerrar:-
     write('Saindo!'), !.
 
 
+setup:-
+    retractall(cont(_)),
+    retractall(renda_total(_)),
+    assert(cont(0)),
+    assert(renda_total(0)).
 
 % - - FRONT END - -
 
 % Menu principal
 trabalho:-
+    setup,
     write('\e[2J'), nl,
     write(' CONSULTA DE CONTRIBUINTES '),
     writeln('Escolha opção: '), nl,
-    writeln('| 1 | Inclluir Contribuinte'),
+    writeln('| 1 | Incluir Contribuinte'),
     writeln('| 2 | Incluir Dependente'),
     writeln('| 3 | Localizar Contribuinte pelo CPF'),
     writeln('| 4 | Excluir Contribuinte e Seus Dependentes'),
     writeln('| 5 | Relatório de Contribuintes'),
     writeln('| 6 | Salvar Dados em Arquivo'),
-    writeln('| 7 | Carregar Dadps de arqiovo'),
+    writeln('| 7 | Carregar Dados de arquivo'),
     writeln('| 8 | Limpar Dados de Cadastro'),
     writeln('| 9 | Encerrar'),nl,
     writeln('Informe a opção: '),
     read(Entrada),
     Entrada =\= 9,
-    executar( Entrada ),
+    executar( Entrada );
     trabalho.
 
 % Fim do Programa
@@ -111,21 +116,21 @@ trabalho:- encerrar.
 % Mapeamento de funções
 
 executar(1):-
-    op1.
+    op1, !.
 executar(2):-
-    op2.
+    op2,!.
 executar(3):-
-    op3.
+    op3,!.
 executar(4):-
-    op4.
+    op4,!.
 executar(5):-
-    op5.
+    op5,!.
 executar(6):-
-    op6.
+    op6,!.
 executar(7):-
-    op7.
+    op7,!.
 executar(8):-
-    op8.
+    op8,!.
 
 % Entradas do usuário
 
@@ -142,7 +147,7 @@ op1:-
     write('\nEstado '), read(Estado),
     write('\nCEP '), read(CEP),
     write('\nCelular'), read(Celular),
-    incluir_contribuinte(CPF, Nome, Genero, Renda_anual, Logradouro, Numero, Complemento, Cidade, Estado, CEP, Celular).
+    incluir_contribuinte(CPF, Nome, Genero, Renda_anual, Logradouro, Numero, Complemento, Cidade, Estado, CEP, Celular),!.
 
 op2:-
     writeln('Digite os dados dos dependentes'),
@@ -159,19 +164,19 @@ op3:-
 
 op4:-
     write('Digite o CPF do contribuinte '), read(CPF),
-    excluir_contribuinte(CPF).
+    excluir_contribuinte(CPF),!.
 
 op5:-
-    relatorio_contribuinte.
+    relatorio_contribuinte,!.
 
 op6:-
-    salvar_dados_em_arquivo.
+    salvar_dados_em_arquivo,!.
 
 op7:-
-    carregar_dados.
+    carregar_dados,!.
 
 op8:-
-    limpar_dados.
+    limpar_dados,!.
 
 op9:-
-    encerrar.
+    encerrar,!.
